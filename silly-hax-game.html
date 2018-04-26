@@ -1,16 +1,11 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../materializecss-styles/materializecss-styles.html">
-<link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
-<link rel="import" href="../schema-behaviors/schema-behaviors.html">
+<link rel="import" href="../simple-timer/simple-timer.html">
+<link rel="import" href="../lrnsys-layout/lrnsys-dialog-modal.html">
 <!--
 `silly-hax-game`
-A LRN element
+An example web component of gamifying HAX to make it more fun and challenging.
 
 @demo demo/index.html
-
-@microcopy - the mental model for this element
- -
- -
 
 -->
 
@@ -21,71 +16,229 @@ A LRN element
         display: block;
       }
     </style>
-    <h2>[[title]]</h2>
+    <paper-card heading="[[haxText]]" elevation="1">
+      <simple-timer id="timer" start-time="60" count-up hidden current-time="{{timer}}"></simple-timer>
+      <div class="card-content">
+        <to-do items="{{tasks}}" hide-form id="todo" name="Hax Challenge"></to-do>
+      </div>
+      <div class="card-actions">
+        <paper-button raised on-tap="_playButton">Play</paper-button>
+        <paper-button raised on-tap="_resetTimer">Try again</paper-button>
+      </div>
+    </paper-card>
+
+    <lrnsys-dialog-modal id="modal" body-append header="HAX Challenge score">
+      [[__successText]]
+      <to-do name="Report card" hide-form items="{{__score}}"></to-do>
+      <a href$="[[tweet]]" target="_blank" style="text-decoration: none;text-transform: none;"><paper-button raised>Tweet your score</paper-button></a>
+    </lrnsys-dialog-modal>
   </template>
 
   <script>
     Polymer({
 
       is: 'silly-hax-game',
-      behaviors: [HAXBehaviors.PropertiesBehaviors, MaterializeCSSBehaviors.ColorBehaviors, SchemaBehaviors.Schema],
       properties: {
         /**
-         * Title
+         * tasks to accomplish
          */
-        title: {
+        tasks: {
+          type: Array,
+          value: [],
+        },
+        /**
+         * haxText
+         */
+        haxText: {
+          type: String,
+          computed: '_haxTextValue(timer)',
+        },
+        /**
+         * __score board
+         */
+        __score: {
+          type: Array,
+          value: [],
+        },
+        /**
+         * tweet
+         */
+        tweet: {
           type: String,
         },
+        /**
+         * Timer as updated via downstream
+         */
+        timer: {
+          type: Number,
+        },
+        /**
+         * Playing the game or not.
+         */
+        playing: {
+          type: Boolean,
+          value: false,
+          observer: '_playGame',
+          reflectToAttribute: true,
+        },
+      },
+      /**
+       * Play button
+       */
+      _playButton: function(e) {
+        this.playing = true;
+        this.$.timer.start();
+      },
+      /**
+       * _playGame
+       */
+      _playGame: function(newValue, oldValue) {
+        if (newValue) {
+          this.__started = true;
+          this.set('tasks', []);
+          this.push('tasks',{
+            value: false,
+            label: 'Start to edit with HAX',
+            disabled: true,
+            id: 'play'
+          },
+          {
+            value: false,
+            label: 'Embed a video by Searching for it',
+            disabled: true,
+            id: 'youtube'
+          },
+          {
+            value: false,
+            label: 'Turn a NASA image into a meme',
+            disabled: true,
+            id: 'nasa'
+          },
+          {
+            value: false,
+            label: 'Delete a paragraph',
+            disabled: true,
+            id: 'deletep'
+          },
+          {
+            value: false,
+            label: 'Make a paragraph',
+            disabled: true,
+            id: 'makep'
+          },
+          {
+            value: false,
+            label: 'Saved content!!!',
+            disabled: true,
+            id: 'saved'
+          });
+        }
+      },
+      /**
+       * Reset the timer to play again
+       */
+      _resetTimer: function(e) {
+        this.$.timer.pause();
+        this.playing = false;
+        this.timer = 0;
+        this.set('tasks', []);
+      },
+      _haxTextValue: function(time) {
+        if (typeof time === typeof undefined || time == 60) {
+          return 'Take the HAX challenge';
+        }
+        else {
+          return time;
+        }
       },
       /**
        * Attached to the DOM, now fire.
        */
       attached: function() {
-        // Establish hax property binding
-        let props = {
-          'canScale': true,
-          'canPosition': true,
-          'canEditSource': false,
-          'gizmo': {
-            'title': 'Sample gizmo',
-            'description': 'The user will be able to see this for selection in a UI.',
-            'icon': 'av:play-circle-filled',
-            'color': 'grey',
-            'groups': ['Video', 'Media'],
-            'handles': [
-              {
-                'type': 'video',
-                'url': 'source'
-              }
-            ],
-            'meta': {
-              'author': 'Your organization on github'
+         document.body.addEventListener('hax-body-tag-added', this._verifyAction.bind(this));
+         document.body.addEventListener('hax-body-tag-removed', this._verifyRemovedAction.bind(this));
+         document.body.addEventListener('hax-store-property-updated', this._propertyUpdated.bind(this));
+      },
+      /**
+       * Property updated in the hax store.
+       */
+      _propertyUpdated: function(e) {
+        switch(e.detail.property) {
+          case 'editMode':
+            if (e.detail.value) {
+              this.set('tasks.0.value', true);
             }
-          },
-          'settings': {
-            'quick': [
-              {
-                'property': 'title',
-                'title': 'Title',
-                'description': 'The title of the element',
-                'inputMethod': 'textfield',
-                'icon': 'editor:title',
-              },
-            ],
-            'configure': [
-              {
-                'property': 'title',
-                'title': 'Title',
-                'description': 'The title of the element',
-                'inputMethod': 'textfield',
-                'icon': 'editor:title',
-              },
-            ],
-            'advanced': [
-            ]
+            else if (e.detail.value === false && this.__started && this.playing) {
+              this.set('tasks.' + (parseInt(this.tasks.length)-1) + '.value', true);
+              this.$.timer.pause();
+              this._verifyWin();
+            }
+          break;
+        }
+      },
+      /**
+       * Verify if they won!
+       */
+      _verifyWin: function() {
+        let win = true;
+        let winning = 0;
+        var score = this.tasks;
+        for (var i in this.tasks) {
+          if (!this.tasks[i].value) {
+            win = false;
           }
-        };
-        this.setHaxProperties(props);
+          else {
+            winning++;
+          }
+        }
+        if (this.$.timer.startTime === 0) {
+          win = false;
+          score[score.length] = {
+            value: false,
+            label: 'You ran out of time :(',
+            disabled: true,
+            id: 'time'
+          };
+        }
+        else {
+          score[this.tasks.length] = {
+            value: true,
+            label: 'You did it!!! <(:) Much Success!',
+            disabled: true,
+            id: 'time'
+          };
+          winning++;
+        }
+        this.__score = score;
+        this.$.modal.opened = true;
+        if (!win) {
+          this.__successText = ':( You have much sadness by only completing ' + winning + ' of the available ' + this.tasks.length + ' challenges. Tweet your failure and try again soon mmmkay?';
+          this.tweet = 'http://twitter.com/home?status=' + encodeURIComponent('I took the #HaxtheWeb Challenge and finished ' + winning + ' challenges! Take the challenge at http://haxtheweb.org/ !');
+        }
+        else {
+          this.__successText = 'YOU ARE A HAX MASTER! YOU BEAT ALL ' + this.tasks.length + ' CHALLENGES. AM I USING ENOUGH CAPSLOCK!? YOU BET I AM! TWEET YOUR SUCCESS NOW!';
+          this.tweet = 'http://twitter.com/home?status=' + encodeURIComponent('I are winning! I beat the #HaxtheWeb Challenge in ' + (60 - this.timer) + ' seconds. Now I drink more coffee and code less! Take the challenge at http://haxtheweb.org/ !');
+        }
+      },
+      /**
+       * Verify that different tasks have been completed.
+       */
+      _verifyAction: function(e) {
+        console.log(e.detail.node);
+        if (e.detail.node.tagName === 'VIDEO-PLAYER') {
+          this.set('tasks.1.value', true);
+        }
+        else if (e.detail.node.tagName === 'MEME-MAKER') {
+          this.set('tasks.2.value', true);
+        }
+        else if (e.detail.node.tagName === 'P') {
+          this.set('tasks.4.value', true);
+        }
+      },
+      _verifyRemovedAction: function(e) {
+        if (e.detail.node.tagName === 'P') {
+          this.set('tasks.3.value', true);
+        }
       },
     });
   </script>
