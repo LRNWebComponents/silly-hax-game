@@ -172,7 +172,7 @@ An example web component of gamifying HAX to make it more fun and challenging.
       _propertyUpdated: function(e) {
         switch(e.detail.property) {
           case 'editMode':
-            if (e.detail.value) {
+            if (this.playing && this.__started && e.detail.value && typeof this.tasks[0].label !== typeof undefined) {
               this.set('tasks.0.value', true);
               this.set('tasks.0.label', this.tasks[0].label + ' - ' + this.timer.toFixed(2) + ' seconds');
             }
@@ -240,23 +240,27 @@ An example web component of gamifying HAX to make it more fun and challenging.
        * Verify that different tasks have been completed.
        */
       _verifyAction: function(e) {
-        if (e.detail.node.tagName === 'VIDEO-PLAYER') {
-          this.set('tasks.1.value', true);
-          this.set('tasks.1.label', this.tasks[1].label + ' - ' + this.timer.toFixed(2) + ' seconds');
-        }
-        else if (e.detail.node.tagName === 'MEME-MAKER') {
-          this.set('tasks.2.value', true);
-          this.set('tasks.2.label', this.tasks[2].label + ' - ' + this.timer.toFixed(2) + ' seconds');
-        }
-        else if (e.detail.node.tagName === 'P') {
-          this.set('tasks.4.value', true);
-          this.set('tasks.4.label', this.tasks[4].label + ' - ' + this.timer.toFixed(2) + ' seconds');
+        if (this.playing && this.__started) {
+          if (e.detail.node.tagName === 'VIDEO-PLAYER') {
+            this.set('tasks.1.value', true);
+            this.set('tasks.1.label', this.tasks[1].label + ' - ' + this.timer.toFixed(2) + ' seconds');
+          }
+          else if (e.detail.node.tagName === 'MEME-MAKER') {
+            this.set('tasks.2.value', true);
+            this.set('tasks.2.label', this.tasks[2].label + ' - ' + this.timer.toFixed(2) + ' seconds');
+          }
+          else if (e.detail.node.tagName === 'P') {
+            this.set('tasks.4.value', true);
+            this.set('tasks.4.label', this.tasks[4].label + ' - ' + this.timer.toFixed(2) + ' seconds');
+          }
         }
       },
       _verifyRemovedAction: function(e) {
-        if (e.detail.node.tagName === 'P') {
-          this.set('tasks.3.value', true);
-          this.set('tasks.3.label', this.tasks[3].label + ' - ' + this.timer.toFixed(2) + ' seconds');
+        if (this.playing && this.__started) {
+          if (e.detail.node.tagName === 'P') {
+            this.set('tasks.3.value', true);
+            this.set('tasks.3.label', this.tasks[3].label + ' - ' + this.timer.toFixed(2) + ' seconds');
+          }
         }
       },
     });
