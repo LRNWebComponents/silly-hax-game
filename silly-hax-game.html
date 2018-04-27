@@ -32,7 +32,8 @@ An example web component of gamifying HAX to make it more fun and challenging.
       <h3 slot="header">HAX Challenge score</h3>
       <div slot="primary">
         <p>[[__successText]]
-          <a href$="[[tweet]]" target="_blank" style="text-decoration: none;text-transform: none;"><paper-button raised>Tweet your score</paper-button></a></p>
+          <a href$="[[tweet]]" target="_blank" style="text-decoration: none;text-transform: none;"><paper-button raised>Tweet your score</paper-button></a>
+      	</p>
         <to-do name="Report card" hide-form items="{{__score}}"></to-do>
       </div>
     </lrnsys-dialog-modal>
@@ -154,7 +155,7 @@ An example web component of gamifying HAX to make it more fun and challenging.
           return 'Take the HAX challenge';
         }
         else {
-          return time;
+          return time.toFixed(2);
         }
       },
       /**
@@ -173,9 +174,11 @@ An example web component of gamifying HAX to make it more fun and challenging.
           case 'editMode':
             if (e.detail.value) {
               this.set('tasks.0.value', true);
+              this.set('tasks.0.label', this.tasks[0].label + ' - ' + this.timer.toFixed(2) + ' seconds');
             }
             else if (e.detail.value === false && this.__started && this.playing) {
               this.set('tasks.' + (parseInt(this.tasks.length)-1) + '.value', true);
+              this.set('tasks.' + (parseInt(this.tasks.length)-1) + '.label', this.tasks[(parseInt(this.tasks.length)-1)].label + ' - ' + this.timer.toFixed(2) + ' seconds');
               this.$.timer.pause();
               this._verifyWin();
             }
@@ -230,7 +233,7 @@ An example web component of gamifying HAX to make it more fun and challenging.
         }
         else {
           this.__successText = 'YOU ARE A HAX MASTER! YOU BEAT ALL ' + this.tasks.length + ' CHALLENGES. AM I USING ENOUGH CAPSLOCK!? YOU BET I AM! TWEET YOUR SUCCESS NOW!';
-          this.tweet = 'http://twitter.com/home?status=' + encodeURIComponent('I are winning! I beat the #HaxtheWeb Challenge in ' + this.timer + ' seconds. Now I drink more coffee and code less! Take the challenge at http://haxtheweb.org/ !');
+          this.tweet = 'http://twitter.com/home?status=' + encodeURIComponent('I are winning! I beat the #HaxtheWeb Challenge in ' + this.timer.toFixed(2) + ' seconds. Now I drink more coffee and code less! Take the challenge at http://haxtheweb.org/ !');
         }
       },
       /**
@@ -239,17 +242,21 @@ An example web component of gamifying HAX to make it more fun and challenging.
       _verifyAction: function(e) {
         if (e.detail.node.tagName === 'VIDEO-PLAYER') {
           this.set('tasks.1.value', true);
+          this.set('tasks.1.label', this.tasks[1].label + ' - ' + this.timer.toFixed(2) + ' seconds');
         }
         else if (e.detail.node.tagName === 'MEME-MAKER') {
           this.set('tasks.2.value', true);
+          this.set('tasks.2.label', this.tasks[2].label + ' - ' + this.timer.toFixed(2) + ' seconds');
         }
         else if (e.detail.node.tagName === 'P') {
           this.set('tasks.4.value', true);
+          this.set('tasks.4.label', this.tasks[4].label + ' - ' + this.timer.toFixed(2) + ' seconds');
         }
       },
       _verifyRemovedAction: function(e) {
         if (e.detail.node.tagName === 'P') {
           this.set('tasks.3.value', true);
+          this.set('tasks.3.label', this.tasks[3].label + ' - ' + this.timer.toFixed(2) + ' seconds');
         }
       },
     });
