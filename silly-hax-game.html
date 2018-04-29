@@ -2,6 +2,8 @@
 <link rel="import" href="../simple-timer/simple-timer.html">
 <link rel="import" href="../lrnsys-layout/lrnsys-dialog-modal.html">
 <link rel="import" href="../to-do/to-do.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-button/paper-button.html">
 <!--
 `silly-hax-game`
 An example web component of gamifying HAX to make it more fun and challenging.
@@ -32,6 +34,7 @@ An example web component of gamifying HAX to make it more fun and challenging.
       <h3 slot="header">HAX Challenge score</h3>
       <div slot="primary">
         <p>[[__successText]]
+          <a href="https://github.com/LRNWebComponents/hax-body/issues/new" target="_blank" style="text-decoration: none;text-transform: none;"><paper-button raised>Give us feedback to improve</paper-button></a>
           <a href$="[[tweet]]" target="_blank" style="text-decoration: none;text-transform: none;"><paper-button raised>Tweet your score</paper-button></a>
       	</p>
         <to-do name="Report card" hide-form items="{{__score}}"></to-do>
@@ -103,7 +106,7 @@ An example web component of gamifying HAX to make it more fun and challenging.
         if (newValue) {
           this.__started = true;
           this.set('tasks', []);
-          this.push('tasks',{
+          this.push('tasks', {
             value: false,
             label: 'Start to edit with HAX',
             disabled: true,
@@ -228,7 +231,7 @@ An example web component of gamifying HAX to make it more fun and challenging.
         }
         this.$.modal.opened = true;
         if (!win) {
-          this.__successText = ':( You have much sadness by only completing ' + winning + ' of the available ' + this.tasks.length + ' challenges. Tweet your failure and try again soon mmmkay?';
+          this.__successText = ':( You have much sadness by only completing ' + winning + ' of the available ' + this.tasks.length + ' challenges. If you experienced confusion when using the interface for certain tasks please let us know! We want everyone to be able to master HAX.';
           this.tweet = 'http://twitter.com/home?status=' + encodeURIComponent('I took the #HaxtheWeb Challenge and finished ' + winning + ' challenges! Take the challenge at http://haxtheweb.org/ !');
         }
         else {
