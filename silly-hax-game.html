@@ -126,12 +126,6 @@ An example web component of gamifying HAX to make it more fun and challenging.
           },
           {
             value: false,
-            label: 'Make a paragraph',
-            disabled: true,
-            id: 'makep'
-          },
-          {
-            value: false,
             label: 'Saved content!!!',
             disabled: true,
             id: 'saved'
@@ -244,10 +238,6 @@ An example web component of gamifying HAX to make it more fun and challenging.
           else if (e.detail.node.tagName === 'MEME-MAKER') {
             this.set('tasks.2.value', true);
             this.set('tasks.2.label', this.tasks[2].label + ' - ' + this.timer.toFixed(2) + ' seconds');
-          }
-          else if (e.detail.node.tagName === 'P') {
-            this.set('tasks.4.value', true);
-            this.set('tasks.4.label', this.tasks[4].label + ' - ' + this.timer.toFixed(2) + ' seconds');
           }
         }
       },
